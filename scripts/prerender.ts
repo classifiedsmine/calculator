@@ -7,7 +7,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const distDir = path.join(__dirname, '../dist');
 const indexPath = path.join(distDir, 'index.html');
 
-const baseUrl = 'https://ais-dev-imlglk7whto5i76mmwhawj-950284677903.asia-southeast1.run.app';
+const baseUrl = process.env.APP_URL || 'https://ais-pre-imlglk7whto5i76mmwhawj-950284677903.asia-southeast1.run.app';
 
 if (fs.existsSync(indexPath)) {
   const baseHtml = fs.readFileSync(indexPath, 'utf-8');
@@ -17,7 +17,7 @@ if (fs.existsSync(indexPath)) {
 
     const canonicalUrl = `${baseUrl}/calculators/${calculator.slug}`;
     const pageTitle = `${calculator.title} – Free Online Calculator | CALCULA X`;
-    const pageDescription = `Free online ${calculator.title}. ${calculator.tagline} ${calculator.description.slice(0, 120)}...`;
+    const pageDescription = `Free online ${calculator.title}. ${calculator.tagline} ${calculator.description.slice(0, 120)}`;
     
     // JSON-LD schemas
     const isFinance = calculator.category === 'finance' || calculator.id === 'compound-interest' || calculator.slug === 'compound-interest';
@@ -70,33 +70,61 @@ if (fs.existsSync(indexPath)) {
     const schemas = [webAppSchema, breadcrumbSchema, ...(faqSchema ? [faqSchema] : [])];
     const jsonLdScript = `<script type="application/ld+json" id="prerendered-schema">${JSON.stringify(schemas)}</script>`;
 
-    // Static HTML fallback content for crawlers before hydration
+    // Fully populated static SEO HTML for crawlers before hydration
     const staticContent = `
       <div id="root">
-        <div style="font-family: system-ui, sans-serif; padding: 2rem; max-width: 900px; margin: 0 auto; color: #111;">
-          <nav style="margin-bottom: 1rem; font-size: 0.85rem; color: #666;">
-            <a href="/">Home</a> › <a href="/">Calculators</a> › <span>${calculator.title}</span>
+        <div style="font-family: system-ui, -apple-system, sans-serif; padding: 2.5rem 1.5rem; max-width: 1000px; margin: 0 auto; color: #0F172A; background: #FFFFFF;">
+          <nav style="margin-bottom: 1.5rem; font-size: 0.85rem; color: #64748B; display: flex; align-items: center; gap: 0.5rem;">
+            <a href="/" style="color: #6948FF; text-decoration: none; font-weight: 500;">Home</a> › 
+            <span style="color: #64748B;">Calculators</span> › 
+            <span style="color: #0F172A; font-weight: 600;">${calculator.title}</span>
           </nav>
-          <h1 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 1rem; letter-spacing: -0.025em;">${calculator.title}</h1>
-          <p style="font-size: 1.125rem; line-height: 1.6; color: #444; margin-bottom: 2rem;">${calculator.description}</p>
           
-          <section style="margin-bottom: 2rem; padding: 1.5rem; background: #f8fafc; border-radius: 1rem; border: 1px solid #e2e8f0;">
-            <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem;">Formula & Methodology</h2>
-            <p style="color: #334155; line-height: 1.6; font-family: monospace;">${calculator.formulaDisplay || 'Standard mathematical computation algorithm.'}</p>
+          <header style="margin-bottom: 2.5rem; border-bottom: 1px solid #E2E8F0; padding-bottom: 1.5rem;">
+            <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 0.75rem; letter-spacing: -0.025em; color: #0F172A;">${calculator.title}</h1>
+            <p style="font-size: 1.15rem; line-height: 1.6; color: #334155; margin: 0;">${calculator.description}</p>
+          </header>
+
+          ${calculator.formulaDisplay ? `
+            <section style="margin-bottom: 2.5rem; padding: 1.75rem; background: #F8FAFC; border-radius: 1rem; border: 1px solid #E2E8F0;">
+              <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem; color: #0F172A;">Mathematical Formula</h2>
+              <div style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 1.1rem; font-weight: 600; color: #6948FF; background: #FFFFFF; padding: 1rem; border-radius: 0.5rem; border: 1px solid #E2E8F0; display: inline-block;">
+                ${calculator.formulaDisplay}
+              </div>
+              ${calculator.formulaTokens && calculator.formulaTokens.length > 0 ? `
+                <div style="margin-top: 1rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem;">
+                  ${calculator.formulaTokens.map(t => `
+                    <div style="background: #FFFFFF; padding: 0.75rem 1rem; border-radius: 0.5rem; border: 1px solid #E2E8F0;">
+                      <strong style="color: #6948FF; font-family: monospace;">${t.token}</strong>: <span style="font-size: 0.9rem; color: #334155;">${t.label} - ${t.description}</span>
+                    </div>
+                  `).join('')}
+                </div>
+              ` : ''}
+            </section>
+          ` : ''}
+
+          <section style="margin-bottom: 2.5rem; padding: 1.75rem; background: #FFFFFF; border-radius: 1rem; border: 1px solid #E2E8F0;">
+            <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem; color: #0F172A;">Overview & Methodology</h2>
+            <p style="color: #334155; line-height: 1.7; margin: 0;">${calculator.tagline} This online calculator uses precise compounding algorithms to compute long-term projections instantly based on your exact principal, interest rate, frequency, and time horizon inputs.</p>
           </section>
 
           ${calculator.faqs && calculator.faqs.length > 0 ? `
-            <section style="margin-bottom: 2rem;">
-              <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">Frequently Asked Questions</h2>
-              ${calculator.faqs.map(f => `
-                <div style="margin-bottom: 1rem; padding: 1rem; border-left: 3px solid #6948FF; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border-radius: 0.5rem;">
-                  <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; color: #0f172a;">${f.q}</h3>
-                  <p style="font-size: 0.95rem; color: #334155; line-height: 1.5; margin: 0;">${f.a}</p>
-                </div>
-              `).join('')}
+            <section style="margin-bottom: 2.5rem;">
+              <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1.25rem; color: #0F172A;">Frequently Asked Questions</h2>
+              <div style="display: flex; flex-direction: column; gap: 1rem;">
+                ${calculator.faqs.map(f => `
+                  <div style="padding: 1.25rem; border-left: 4px solid #6948FF; background: #F8FAFC; border-radius: 0.75rem; border-top: 1px solid #E2E8F0; border-right: 1px solid #E2E8F0; border-bottom: 1px solid #E2E8F0;">
+                    <h3 style="font-size: 1.05rem; font-weight: 600; margin-bottom: 0.5rem; color: #0F172A;">${f.q}</h3>
+                    <p style="font-size: 0.95rem; color: #334155; line-height: 1.6; margin: 0;">${f.a}</p>
+                  </div>
+                `).join('')}
+              </div>
             </section>
           ` : ''}
-          <div style="text-align: center; color: #888; font-size: 0.85rem; margin-top: 3rem;">Loading interactive calculator application...</div>
+
+          <div style="text-align: center; color: #64748B; font-size: 0.85rem; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid #E2E8F0;">
+            Interactive calculation interface loading...
+          </div>
         </div>
       </div>
     `;
