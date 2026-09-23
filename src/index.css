@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-dark: #05060A;
+    --bg-dark-secondary: #080B12;
+    --surface-dark: #0C101A;
+    --surface-dark-elevated: #111725;
+    --border-dark: rgba(255, 255, 255, 0.07);
+    --border-dark-strong: rgba(255, 255, 255, 0.14);
+    --primary: #8B6CFF;
+    --secondary: #29D8FF;
+    --success: #35E6A0;
+    --warning: #FFB84D;
+    --danger: #FF5D73;
+  }
+
+  :root.theme-light, [data-theme="light"] {
+    --bg-page: #F6F7FB;
+    --surface-card: #FFFFFF;
+    --surface-secondary: #F0F2F7;
+    --text-main: #11131A;
+    --text-muted: #667085;
+    --primary: #6948FF;
+    --secondary: #009DD9;
+    --border-color: rgba(0, 0, 0, 0.08);
+    --border-color-strong: rgba(0, 0, 0, 0.15);
+  }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    letter-spacing: -0.01em;
+  }
+
+  /* Tabular numbers for calculations */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Subtle mathematical grid background */
+.math-grid-pattern {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+}
+
+.math-grid-pattern-light {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+}
+
+/* Custom sleek scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}

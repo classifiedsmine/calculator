@@ -1,0 +1,6 @@
+{
+  "name": "CALCULA X",
+  "description": "Next-Generation Visual Calculator Platform — an operating system for calculations, scenarios, financial models, and mathematical visualizations.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
