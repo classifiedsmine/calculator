@@ -36,12 +36,17 @@ export interface CompoundInterestResult {
 }
 
 export function calculateCompoundInterest(inputs: CompoundInterestInputs): CompoundInterestResult {
-  const P = Math.max(0, Number(inputs.initialDeposit) || 0);
-  let basePMT = Math.max(0, Number(inputs.periodicContribution) || 0);
-  const r = Math.max(0, (Number(inputs.interestRate) || 0) / 100);
-  const years = Math.max(1, Math.min(100, Math.round(Number(inputs.years) || 1)));
-  const inflation = Math.max(0, (Number(inputs.inflationRate) || 0) / 100);
-  const stepUp = Math.max(0, (Number(inputs.annualStepUp) || 0) / 100);
+  const parseFinite = (val: unknown, fallback = 0): number => {
+    const num = Number(val);
+    return Number.isFinite(num) ? num : fallback;
+  };
+
+  const P = Math.max(0, parseFinite(inputs.initialDeposit, 0));
+  let basePMT = Math.max(0, parseFinite(inputs.periodicContribution, 0));
+  const r = Math.max(0, parseFinite(inputs.interestRate, 0) / 100);
+  const years = Math.max(1, Math.min(100, Math.round(parseFinite(inputs.years, 1))));
+  const inflation = Math.max(0, parseFinite(inputs.inflationRate, 0) / 100);
+  const stepUp = Math.max(0, parseFinite(inputs.annualStepUp, 0) / 100);
 
   // Compounding periods per year
   const compFreqStr = inputs.compoundingFrequency || 'annually';
@@ -300,10 +305,31 @@ export interface SipInputs {
 }
 
 export function calculateSip(inputs: SipInputs) {
-  const p0 = Math.max(100, inputs.monthlyInvestment || 1000);
-  const r = (inputs.expectedReturnRate || 12) / 100 / 12;
-  const years = Math.max(1, Math.min(50, Math.round(inputs.timePeriodYears || 10)));
-  const stepUp = Math.max(0, (inputs.annualStepUpPercent || 0) / 100);
+  const parseFinite = (val: unknown, fallback = 0): number => {
+    const num = Number(val);
+    return Number.isFinite(num) ? num : fallback;
+  };
+
+  const monthlyInvestmentParsed = inputs.monthlyInvestment === undefined || inputs.monthlyInvestment === null
+    ? 1000
+    : parseFinite(inputs.monthlyInvestment, 1000);
+  const p0 = Math.max(0, monthlyInvestmentParsed);
+
+  const rateParsed = inputs.expectedReturnRate === undefined || inputs.expectedReturnRate === null
+    ? 12
+    : parseFinite(inputs.expectedReturnRate, 12);
+  const r = Math.max(0, rateParsed) / 100 / 12;
+
+  const yearsParsed = inputs.timePeriodYears === undefined || inputs.timePeriodYears === null
+    ? 10
+    : parseFinite(inputs.timePeriodYears, 10);
+  const years = Math.max(1, Math.min(50, Math.round(yearsParsed)));
+
+  const stepUpParsed = inputs.annualStepUpPercent === undefined || inputs.annualStepUpPercent === null
+    ? 0
+    : parseFinite(inputs.annualStepUpPercent, 0);
+  const stepUp = Math.max(0, stepUpParsed / 100);
+
   const timing = inputs.contributionTiming || 'end';
   const freq = inputs.contributionFrequency || 'month';
 

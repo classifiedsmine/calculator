@@ -347,6 +347,11 @@ export const MUST_HAVE_CALCULATORS: CalculatorDefinition[] = [
             title: 'Real Purchasing Power Growth',
             description: `After accounting for an annual inflation rate of ${inputs.inflationRate}%, your terminal portfolio purchasing power equals ${formatCurrency(res.realFutureValue, currency, true)} in today's currency.`,
           },
+          {
+            type: 'info',
+            title: 'Mixed-Frequency Rate Transformation',
+            description: `When the interest-compounding frequency (${inputs.compoundingFrequency || 'annually'}) differs from the contribution frequency (${inputs.contributionFrequency || 'monthly'}), the calculator converts the stated nominal rate to an equivalent effective rate at the contribution frequency so the one-year growth factor for a static balance is preserved exactly. Please note that this is a discrete equivalent periodic-rate model, not continuous compounding, and is not a literal simulation of a financial institution's milestone interest-posting schedules.`,
+          },
         ],
       };
     },
@@ -401,7 +406,7 @@ export const MUST_HAVE_CALCULATORS: CalculatorDefinition[] = [
       },
       {
         id: 'expectedReturnRate',
-        name: 'Expected Annual Return (%)',
+        name: 'Expected Annual Return (%, nominal compounded monthly)',
         type: 'percentage',
         defaultValue: 12,
         min: 1,
@@ -470,6 +475,13 @@ export const MUST_HAVE_CALCULATORS: CalculatorDefinition[] = [
         chartSeries: [
           { key: 'invested', label: 'Invested Capital', color: '#29D8FF', type: 'area' },
           { key: 'returns', label: 'Wealth Gain', color: '#35E6A0', type: 'area' },
+        ],
+        insights: [
+          {
+            type: 'info',
+            title: 'Assumed Return Disclosure',
+            description: 'Projected SIP returns use the assumed annual return divided by 12 as the monthly rate. Actual mutual-fund returns vary over time and are not guaranteed.',
+          },
         ],
       };
     },
@@ -543,7 +555,7 @@ export const MUST_HAVE_CALCULATORS: CalculatorDefinition[] = [
       },
       {
         id: 'expectedReturnRate',
-        name: 'Expected Return (% CAGR)',
+        name: 'Expected Return (%, nominal compounded monthly)',
         type: 'percentage',
         defaultValue: 13,
         min: 1,
@@ -599,6 +611,13 @@ export const MUST_HAVE_CALCULATORS: CalculatorDefinition[] = [
         chartSeries: [
           { key: 'invested', label: 'Invested Capital', color: '#29D8FF', type: 'area' },
           { key: 'returns', label: 'Growth Gain', color: '#35E6A0', type: 'area' },
+        ],
+        insights: [
+          {
+            type: 'info',
+            title: 'Assumed Return Disclosure',
+            description: 'Projected SIP returns use the assumed annual return divided by 12 as the monthly rate. Actual mutual-fund returns vary over time and are not guaranteed.',
+          },
         ],
       };
     },
