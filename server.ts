@@ -3,7 +3,6 @@ import { createServer as createViteServer } from 'vite';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
-import { CALCULATORS } from './src/data/calculators.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -14,12 +13,6 @@ async function startServer() {
 
   const distPath = path.join(process.cwd(), 'dist');
   const hasDist = fs.existsSync(path.join(distPath, 'index.html'));
-
-  // Collect valid calculator slugs
-  const validSlugs = new Set<string>();
-  CALCULATORS.forEach(c => {
-    if (c.slug) validSlugs.add(c.slug);
-  });
 
   const notFoundHtml = `<!doctype html>
 <html lang="en">
@@ -43,22 +36,26 @@ async function startServer() {
   if (hasDist) {
     console.log(`[Production] Serving static files from ${distPath}`);
 
-    // 1. Trailing slash normalization: 301 redirect non-root trailing slash to clean URL
-    app.use((req, res, next) => {
-      if (req.path.length > 1 && req.path.endsWith('/')) {
-        const query = req.url.slice(req.path.length);
-        const newPath = req.path.slice(0, -1);
-        return res.redirect(301, newPath + query);
+    // Serve static assets with redirect: false to prevent directory trailing slash interference
+    app.use(express.static(distPath, { redirect: false }));
+
+    // 1. Trailing slash redirect for calculator URLs with trailing slash -> 301 to clean canonical URL
+    app.get('/calculators/:slug/', (req, res) => {
+      const slug = req.params.slug;
+      if (!slug || !/^[a-z0-9-]+$/.test(slug)) {
+        return res.status(404).send(notFoundHtml);
       }
-      next();
+      const prerenderedFile = path.join(distPath, 'calculators', slug, 'index.html');
+      if (fs.existsSync(prerenderedFile)) {
+        return res.redirect(301, `/calculators/${slug}`);
+      }
+      res.status(404).send(notFoundHtml);
     });
 
-    app.use(express.static(distPath));
-
-    // 2. Strict server-side HTTP status routing & calculator prerendered HTML serving
+    // 2. Clean calculator URL without trailing slash -> 200 OK with prerendered HTML
     app.get('/calculators/:slug', (req, res) => {
       const slug = req.params.slug;
-      if (!validSlugs.has(slug)) {
+      if (!slug || !/^[a-z0-9-]+$/.test(slug)) {
         return res.status(404).send(notFoundHtml);
       }
       const prerenderedFile = path.join(distPath, 'calculators', slug, 'index.html');
@@ -73,11 +70,15 @@ async function startServer() {
 
       if (pathParts[0] === 'calculators') {
         const slug = pathParts[1];
-        if (!slug || !validSlugs.has(slug)) {
+        if (!slug) {
           return res.status(404).send(notFoundHtml);
         }
+        const prerenderedFile = path.join(distPath, 'calculators', slug, 'index.html');
+        if (fs.existsSync(prerenderedFile)) {
+          return res.sendFile(prerenderedFile);
+        }
+        return res.status(404).send(notFoundHtml);
       } else if (pathParts.length > 0 && pathParts[0] !== 'admin' && pathParts[0] !== 'sitemap.xml' && pathParts[0] !== 'robots.txt') {
-        // Unmatched top-level routes return genuine 404
         return res.status(404).send(notFoundHtml);
       }
 

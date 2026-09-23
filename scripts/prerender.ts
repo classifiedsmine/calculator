@@ -7,7 +7,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const distDir = path.join(__dirname, '../dist');
 const indexPath = path.join(distDir, 'index.html');
 
-const baseUrl = process.env.APP_URL || 'https://ais-pre-imlglk7whto5i76mmwhawj-950284677903.asia-southeast1.run.app';
+const baseUrl = 'https://ais-pre-imlglk7whto5i76mmwhawj-950284677903.asia-southeast1.run.app';
 
 if (fs.existsSync(indexPath)) {
   const baseHtml = fs.readFileSync(indexPath, 'utf-8');
@@ -17,13 +17,13 @@ if (fs.existsSync(indexPath)) {
 
     const canonicalUrl = `${baseUrl}/calculators/${calculator.slug}`;
     const pageTitle = `${calculator.title} – Free Online Calculator | CALCULA X`;
-    const pageDescription = `Free online ${calculator.title}. ${calculator.tagline} ${calculator.description.slice(0, 120)}`;
+    const pageDescription = `Free online ${calculator.title}. ${calculator.tagline} ${calculator.description.slice(0, 110)}`;
     
-    // JSON-LD schemas
+    // JSON-LD schemas (WebApplication, BreadcrumbList, FAQPage only)
     const isFinance = calculator.category === 'finance' || calculator.id === 'compound-interest' || calculator.slug === 'compound-interest';
     const webAppSchema = {
       '@context': 'https://schema.org',
-      '@type': isFinance ? ['WebApplication', 'FinancialProduct'] : 'WebApplication',
+      '@type': 'WebApplication',
       'name': calculator.title,
       'alternateName': `${calculator.title} Online Tool`,
       'url': canonicalUrl,
@@ -47,12 +47,13 @@ if (fs.existsSync(indexPath)) {
       },
     };
 
+    const categoryLabel = calculator.parentCategoryName || calculator.category.toUpperCase();
     const breadcrumbSchema = {
       '@context': 'https://schema.org',
       '@type': 'BreadcrumbList',
       'itemListElement': [
         { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': `${baseUrl}/` },
-        { '@type': 'ListItem', 'position': 2, 'name': 'Calculators', 'item': `${baseUrl}/` },
+        { '@type': 'ListItem', 'position': 2, 'name': categoryLabel },
         { '@type': 'ListItem', 'position': 3, 'name': calculator.title, 'item': canonicalUrl },
       ],
     };
@@ -76,7 +77,7 @@ if (fs.existsSync(indexPath)) {
         <div style="font-family: system-ui, -apple-system, sans-serif; padding: 2.5rem 1.5rem; max-width: 1000px; margin: 0 auto; color: #0F172A; background: #FFFFFF;">
           <nav style="margin-bottom: 1.5rem; font-size: 0.85rem; color: #64748B; display: flex; align-items: center; gap: 0.5rem;">
             <a href="/" style="color: #6948FF; text-decoration: none; font-weight: 500;">Home</a> › 
-            <span style="color: #64748B;">Calculators</span> › 
+            <span style="color: #64748B;">${categoryLabel}</span> › 
             <span style="color: #0F172A; font-weight: 600;">${calculator.title}</span>
           </nav>
           
@@ -87,12 +88,15 @@ if (fs.existsSync(indexPath)) {
 
           ${calculator.formulaDisplay ? `
             <section style="margin-bottom: 2.5rem; padding: 1.75rem; background: #F8FAFC; border-radius: 1rem; border: 1px solid #E2E8F0;">
-              <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem; color: #0F172A;">Mathematical Formula</h2>
-              <div style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 1.1rem; font-weight: 600; color: #6948FF; background: #FFFFFF; padding: 1rem; border-radius: 0.5rem; border: 1px solid #E2E8F0; display: inline-block;">
+              <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem; color: #0F172A;">Mathematical Formula & Methodology</h2>
+              <div style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 1.1rem; font-weight: 600; color: #6948FF; background: #FFFFFF; padding: 1rem; border-radius: 0.5rem; border: 1px solid #E2E8F0; display: inline-block; margin-bottom: 1rem;">
                 ${calculator.formulaDisplay}
               </div>
+              <p style="color: #334155; line-height: 1.6; margin-bottom: 1rem;">
+                This calculator models compound growth by separating initial principal growth <strong>A = P(1 + r/n)^(nt)</strong> from regular periodic additions (PMT), compounding each addition according to your selected compounding frequency and contribution schedule.
+              </p>
               ${calculator.formulaTokens && calculator.formulaTokens.length > 0 ? `
-                <div style="margin-top: 1rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem;">
                   ${calculator.formulaTokens.map(t => `
                     <div style="background: #FFFFFF; padding: 0.75rem 1rem; border-radius: 0.5rem; border: 1px solid #E2E8F0;">
                       <strong style="color: #6948FF; font-family: monospace;">${t.token}</strong>: <span style="font-size: 0.9rem; color: #334155;">${t.label} - ${t.description}</span>
@@ -104,8 +108,16 @@ if (fs.existsSync(indexPath)) {
           ` : ''}
 
           <section style="margin-bottom: 2.5rem; padding: 1.75rem; background: #FFFFFF; border-radius: 1rem; border: 1px solid #E2E8F0;">
-            <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem; color: #0F172A;">Overview & Methodology</h2>
-            <p style="color: #334155; line-height: 1.7; margin: 0;">${calculator.tagline} This online calculator uses precise compounding algorithms to compute long-term projections instantly based on your exact principal, interest rate, frequency, and time horizon inputs.</p>
+            <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem; color: #0F172A;">Understanding Compounding Frequency, Contributions & Inflation</h2>
+            <p style="color: #334155; line-height: 1.7; margin-bottom: 1rem;">
+              <strong>Compounding Frequency (n):</strong> More frequent compounding (e.g., monthly or daily vs. annual) adds earned interest back to your principal sooner, resulting in a higher effective annual yield (APY) over time.
+            </p>
+            <p style="color: #334155; line-height: 1.7; margin-bottom: 1rem;">
+              <strong>Regular Contributions (PMT):</strong> Consistent periodic deposits accelerate wealth accumulation significantly through dollar-cost averaging and compound returns.
+            </p>
+            <p style="color: #334155; line-height: 1.7; margin: 0;">
+              <strong>Inflation Adjustment:</strong> Factoring in inflation reveals your portfolio's real purchasing power in today's currency, discounting future nominal gains by estimated annual price increases.
+            </p>
           </section>
 
           ${calculator.faqs && calculator.faqs.length > 0 ? `
@@ -137,9 +149,8 @@ if (fs.existsSync(indexPath)) {
     // Replace description meta
     html = html.replace(/<meta name="description" content=".*?"\s*\/?>/i, `<meta name="description" content="${pageDescription}">`);
 
-    // Inject canonical & JSON-LD before </head>
+    // Inject OG, robots & JSON-LD before </head> (No canonical tag)
     const headInjection = `
-      <link rel="canonical" href="${canonicalUrl}" />
       <meta property="og:title" content="${pageTitle}" />
       <meta property="og:description" content="${pageDescription}" />
       <meta property="og:type" content="website" />
@@ -160,7 +171,7 @@ if (fs.existsSync(indexPath)) {
     console.log(`Prerendered true SEO HTML for /calculators/${calculator.slug}`);
   });
 
-  // Generate sitemap.xml
+  // Generate sitemap.xml using ais-pre domain exclusively
   let sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
   sitemap += `  <url><loc>${baseUrl}/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>\n`;
   
@@ -172,7 +183,9 @@ if (fs.existsSync(indexPath)) {
   sitemap += `</urlset>`;
 
   fs.writeFileSync(path.join(distDir, 'sitemap.xml'), sitemap);
-  console.log('Generated clean dist/sitemap.xml successfully.');
+  const publicSitemapPath = path.join(__dirname, '../public/sitemap.xml');
+  fs.writeFileSync(publicSitemapPath, sitemap);
+  console.log('Generated clean dist/sitemap.xml and public/sitemap.xml successfully.');
 
 } else {
   console.warn('dist/index.html not found for prerendering.');

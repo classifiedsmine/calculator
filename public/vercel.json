@@ -1,5 +1,9 @@
 {
   "rewrites": [
+    { "source": "/robots.txt", "destination": "/robots.txt" },
+    { "source": "/sitemap.xml", "destination": "/sitemap.xml" },
+    { "source": "/calculators/:slug", "destination": "/calculators/:slug/index.html" },
+    { "source": "/calculators/:slug/", "destination": "/calculators/:slug/index.html" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

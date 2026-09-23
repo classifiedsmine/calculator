@@ -46,15 +46,6 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
     const currentUrl = canonicalUrl || (typeof window !== 'undefined' ? window.location.href : '');
     if (currentUrl) {
       setMetaTag('property', 'og:url', currentUrl);
-      
-      // Update canonical link tag
-      let linkElement = document.querySelector('link[rel="canonical"]');
-      if (!linkElement) {
-        linkElement = document.createElement('link');
-        linkElement.setAttribute('rel', 'canonical');
-        document.head.appendChild(linkElement);
-      }
-      linkElement.setAttribute('href', currentUrl);
     }
 
     // 4. Set Schema.org JSON-LD Structured Data

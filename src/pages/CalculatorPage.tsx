@@ -122,31 +122,13 @@ export function injectCalculatorSEOMetadata(
         '@type': 'ListItem',
         'position': 2,
         'name': categoryLabel,
-        'item': `${origin}/#${calculator.parentCategoryId || calculator.category}`,
       },
-      ...(calculator.subCategoryName
-        ? [
-            {
-              '@type': 'ListItem',
-              'position': 3,
-              'name': calculator.subCategoryName,
-              'item': `${origin}/#${calculator.subCategoryId}`,
-            },
-            {
-              '@type': 'ListItem',
-              'position': 4,
-              'name': calculator.title,
-              'item': canonicalUrl,
-            },
-          ]
-        : [
-            {
-              '@type': 'ListItem',
-              'position': 3,
-              'name': calculator.title,
-              'item': canonicalUrl,
-            },
-          ]),
+      {
+        '@type': 'ListItem',
+        'position': 3,
+        'name': calculator.title,
+        'item': canonicalUrl,
+      },
     ],
   };
 
@@ -202,15 +184,6 @@ export function injectCalculatorSEOMetadata(
     setMeta('name', 'twitter:card', 'summary_large_image');
     setMeta('name', 'twitter:title', pageTitle);
     setMeta('name', 'twitter:description', pageDescription);
-
-    // Canonical Link Tag
-    let canonicalLink = document.querySelector('link[rel="canonical"]');
-    if (!canonicalLink) {
-      canonicalLink = document.createElement('link');
-      canonicalLink.setAttribute('rel', 'canonical');
-      document.head.appendChild(canonicalLink);
-    }
-    canonicalLink.setAttribute('href', canonicalUrl);
 
     // Schema.org Structured Data Script Injection
     const scriptId = `schema-jsonld-${calculator.id}`;
@@ -526,7 +499,9 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
         onSaveHistory={onSaveHistory}
         externalInputs={loadedInputs}
         onSelectRelated={(relatedId) => {
-          navigate(`/calculator/${relatedId}`);
+          const targetCalc = CALCULATORS.find(c => c.id === relatedId || c.slug === relatedId);
+          const targetSlug = targetCalc ? targetCalc.slug : relatedId;
+          navigate(`/calculators/${targetSlug}`);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
         theme={theme}

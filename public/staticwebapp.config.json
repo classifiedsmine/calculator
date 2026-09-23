@@ -1,5 +1,11 @@
 {
+  "routes": [
+    { "route": "/robots.txt", "headers": { "cache-control": "no-cache" } },
+    { "route": "/sitemap.xml", "headers": { "cache-control": "no-cache" } },
+    { "route": "/calculators/*", "serve": "/calculators/:splat/index.html" }
+  ],
   "navigationFallback": {
-    "rewrite": "/index.html"
+    "rewrite": "/index.html",
+    "exclude": ["/images/*.{png,jpg,gif}", "/css/*", "/robots.txt", "/sitemap.xml", "/calculators/*"]
   }
 }

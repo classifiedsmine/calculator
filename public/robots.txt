@@ -3,4 +3,4 @@ Allow: /
 Allow: /calculators/
 Disallow: /admin
 
-Sitemap: https://ais-dev-imlglk7whto5i76mmwhawj-950284677903.asia-southeast1.run.app/sitemap.xml
+Sitemap: https://ais-pre-imlglk7whto5i76mmwhawj-950284677903.asia-southeast1.run.app/sitemap.xml
